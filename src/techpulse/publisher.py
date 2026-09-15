@@ -54,12 +54,6 @@ def publish_local(output_root: Path, report_date: date, stories: list[dict]) -> 
     if not readme_path.exists() or readme_path.read_text(encoding="utf-8") != readme:
         readme_path.write_text(readme, encoding="utf-8")
         changed = True
-    # dashboard data (source of truth stays the markdown files)
-    try:
-        from .dashboard import refresh_dashboard_data
-        refresh_dashboard_data(output_root)
-    except Exception as e:  # noqa: BLE001
-        log.warning("dashboard refresh skipped: %s", e)
     return {"path": str(target), "changed": changed, "commit": report_date.isoformat()}
 
 

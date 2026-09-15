@@ -79,10 +79,50 @@ def test_month_folder_and_filename():
 def test_markdown_generation_shape():
     stories = [{"title": "OpenAI announces X", "category": "Artificial Intelligence",
                 "importance_score": 0.8, "summary": "S.", "why_it_matters": "W.",
-                "source": "Blog", "url": "https://e.com", "published_at": "2026-09-15"}]
+                "source": "Blog", "url": "https://e.com/x", "published_at": "2026-09-15"}]
     md = generate_report(date(2026, 9, 15), stories)
-    assert "# ⚡ TechPulse — September 15, 2026" in md
-    assert "### 1. OpenAI announces X" in md and "Why it matters" in md
+    assert "# TechPulse — September 15, 2026" in md
+    assert "## 1. OpenAI announces X" in md
+    assert "### What happened" in md and "### Why it matters" in md
+    assert "**Source:** [Blog](https://e.com/x)" in md
+
+
+def test_markdown_multiple_items_format():
+    stories = [
+        {"title": f"Headline {i}", "category": "Cloud", "importance_score": 0.7,
+         "summary": f"Summary {i}.", "why_it_matters": f"Reason {i}.",
+         "source": "Blog", "url": f"https://e.com/{i}", "published_at": "2026-09-16"}
+        for i in (1, 2, 3)
+    ]
+    md = generate_report(date(2026, 9, 16), stories)
+    assert "## 1. Headline 1" in md
+    assert "## 2. Headline 2" in md
+    assert "## 3. Headline 3" in md
+    assert md.count("### What happened") == 3
+    assert md.count("**Source:**") == 3
+
+
+def test_month_folder_creation_and_idempotent_publish(tmp_path: Path):
+    from techpulse.publisher import publish_local
+    stories = [{"title": "OpenAI announces X", "category": "Artificial Intelligence",
+                "importance_score": 0.8, "summary": "S.", "why_it_matters": "W.",
+                "source": "Blog", "url": "https://e.com/x", "published_at": "2026-09-16"}]
+    first = publish_local(tmp_path, date(2026, 9, 16), stories)
+    target = tmp_path / "September" / "2026-09-16.md"
+    assert target.exists()
+    assert first["changed"] is True
+    second = publish_local(tmp_path, date(2026, 9, 16), stories)
+    assert second["changed"] is False  # rerun: no duplicate content
+    assert target.read_text(encoding="utf-8").count("## 1. OpenAI announces X") == 1
+
+
+def test_target_date_override_uses_ist_month_folder():
+    from techpulse.pipeline import report_date_ist
+    cfg = config_mod.AppConfig.from_env_and_yaml(Path(__file__).resolve().parents[1])
+    rdate = report_date_ist(cfg, "2026-09-16")
+    assert rdate.isoformat() == "2026-09-16"
+    assert month_folder(rdate) == "September"
+    assert report_filename(rdate) == "2026-09-16.md"
 
 
 def test_state_roundtrip_and_unseen(tmp_path: Path):
@@ -107,10 +147,12 @@ def test_readme_updater_counts_real_files(tmp_path: Path):
     m = tmp_path / "September"
     m.mkdir()
     (m / "2026-09-15.md").write_text(
-        "# T\n\n### 1. A\n\n**Category:** Cloud\n\n### 2. B\n\n**Category:** Cloud\n",
+        "# TechPulse — September 15, 2026\n\n## 1. A\n\n**Category:** Cloud\n\n"
+        "## 2. B\n\n**Category:** Cloud\n",
         encoding="utf-8")
     out = update_output_readme(tmp_path)
-    assert "Total stories: 2" in out and "September" in out
+    assert "Total news items: 2" in out and "September" in out
+    assert "Monthly archive" in out and "just-userhere/Engine" in out
 
 
 def test_invalid_story_rejected():
