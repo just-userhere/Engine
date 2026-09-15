@@ -1,0 +1,89 @@
+timezone: Asia/Kolkata
+news_minimum: 1
+news_maximum: 5
+freshness_window_hours: 72
+duplicate_threshold: 0.82
+state_max_entries: 2000
+output_repository: just-userhere/Output
+
+weights:
+  industry_impact: 0.25
+  developer_relevance: 0.25
+  novelty: 0.15
+  source_reliability: 0.15
+  freshness: 0.10
+  trend_momentum: 0.10
+
+sources:
+  - name: Hacker News Front Page
+    url: https://hnrss.org/frontpage
+    type: rss
+    category_default: Developer Tools
+    reliability: 0.9
+    enabled: true
+  - name: GitHub Blog
+    url: https://github.blog/feed/
+    type: rss
+    category_default: Open Source
+    reliability: 0.9
+    enabled: true
+  - name: AWS News Blog
+    url: https://aws.amazon.com/blogs/aws/feed/
+    type: rss
+    category_default: Cloud
+    reliability: 0.9
+    enabled: true
+  - name: Microsoft Azure Blog
+    url: https://azure.microsoft.com/en-us/blog/feed/
+    type: rss
+    category_default: Cloud
+    reliability: 0.85
+    enabled: true
+  - name: Google Cloud Blog
+    url: https://cloud.google.com/blog/rss.xml
+    type: rss
+    category_default: Cloud
+    reliability: 0.85
+    enabled: true
+  - name: OpenAI Blog
+    url: https://openai.com/blog/rss.xml
+    type: rss
+    category_default: Artificial Intelligence
+    reliability: 0.9
+    enabled: true
+  - name: CISA Advisories
+    url: https://www.cisa.gov/news.xml
+    type: rss
+    category_default: Cybersecurity
+    reliability: 0.95
+    enabled: true
+  - name: The Hacker News
+    url: https://feeds.feedburner.com/TheHackersNews
+    type: rss
+    category_default: Cybersecurity
+    reliability: 0.7
+    enabled: true
+  - name: Kubernetes Blog
+    url: https://kubernetes.io/feed.xml
+    type: rss
+    category_default: DevOps
+    reliability: 0.85
+    enabled: true
+  - name: Python Insider
+    url: https://pythoninsider.blogspot.com/feeds/posts/default
+    type: rss
+    category_default: Programming
+    reliability: 0.8
+    enabled: true
+  - name: Mozilla Hacks
+    url: https://hacks.mozilla.org/feed/
+    type: rss
+    category_default: Web
+    reliability: 0.75
+    enabled: true
+  - name: Google AI Blog
+    url: https://blog.research.google/feeds/posts/default
+    type: rss
+    category_default: Artificial Intelligence
+    reliability: 0.85
+    enabled: true
